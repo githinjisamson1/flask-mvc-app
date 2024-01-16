@@ -19,6 +19,7 @@ sqlalchemy-serializer = "1.4.1"
 flask-cors = "*"
 faker = "*"
 
+
 [dev-packages]
 
 [requires]
