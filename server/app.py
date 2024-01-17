@@ -12,33 +12,14 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 migrate = Migrate(app, db)
 db.init_app(app)
 
-api = Api(app)
 ma = Marshmallow(app)
+api = Api(app)
 
-
-class PowerSchema():
-    class Meta:
-        model = Power
-
-    # Fields for serialization and deserialization
-    title = ma.auto_field()
-    published_at = ma.auto_field()
-
-    url = ma.Hyperlinks(
-        {
-            "self": ma.URLFor("powerbyid", values=dict(id="<id>")),
-            "collection": ma.URLFor("powers"),
-        }
-    )
-
-
-power_schema = PowerSchema()
-powers_schema = PowerSchema()
-
-
-class HeroSchema():
+# !HeroSchema
+class HeroSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Hero
+        load_instance = True
 
     # Fields for serialization and deserialization
     title = ma.auto_field()
@@ -46,19 +27,20 @@ class HeroSchema():
 
     url = ma.Hyperlinks(
         {
-            "self": ma.URLFor("herobyid", values=dict(id="<id>")),
+            "self": ma.URLFor("herobyid", values=dict(id="<hero_id>")),
             "collection": ma.URLFor("heroes"),
         }
     )
 
 
 hero_schema = HeroSchema()
-heroes_schema = HeroSchema()
+heroes_schema = HeroSchema(many=True)
 
-
-class HeroPowerSchema():
+# !HeroPowerSchema
+class HeroPowerSchema(ma.SQLAlchemySchema):
     class Meta:
         model = HeroPower
+        load_instance = True
 
     # Fields for serialization and deserialization
     title = ma.auto_field()
@@ -66,14 +48,42 @@ class HeroPowerSchema():
 
     url = ma.Hyperlinks(
         {
-            "self": ma.URLFor("heropowerbyid", values=dict(id="<id>")),
+            "self": ma.URLFor("heropowerbyid", values=dict(id="<heropower_id>")),
             "collection": ma.URLFor("heropowers"),
         }
     )
 
 
 heropower_schema = HeroPowerSchema()
-heropowers_schema = HeroPowerSchema()
+heropowers_schema = HeroPowerSchema(many=True)
+
+# !PowerSchema
+class PowerSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Power
+        load_instance = True
+
+
+    # Fields for serialization and deserialization
+    title = ma.auto_field()
+    published_at = ma.auto_field()
+    load_instance = True
+
+    url = ma.Hyperlinks(
+        {
+            "self": ma.URLFor("powerbyid", values=dict(id="<power_id>")),
+            # "collection": ma.URLFor("powers"),
+        }
+    )
+
+
+power_schema = PowerSchema()
+powers_schema = PowerSchema(many=True)
+
+
+
+
+
 
 
 class Index(Resource):
@@ -266,7 +276,7 @@ class PowerById(Resource):
 
         # response = make_response(jsonify(power_dict), 200)
         response = make_response(power_schema.dump(power), 200)
-        
+
         response.headers["Content-Type"] = "application/json"
 
         return response

@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy_serializer import SerializerMixin
+# from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.orm import validates
 
 # instantiate SQLAlchemy
@@ -7,7 +7,8 @@ db = SQLAlchemy()
 
 
 # define Hero, HeroPower, Power models with serialization and validation
-class Hero(db.Model, SerializerMixin):
+# class Hero(db.Model, SerializerMixin):
+class Hero(db.Model):
     __tablename__ = 'heroes'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -19,13 +20,14 @@ class Hero(db.Model, SerializerMixin):
     heropowers = db.relationship("HeroPower", backref="hero")
     # powers = db.relationship("HeroPower", back_populates="powers")
 
-    serialize_rules = ("-heropowers.hero",)
+    # serialize_rules = ("-heropowers.hero",)
 
     def __repr__(self):
         return f'''Hero {self.name} {self.super_name}'''
 
 
-class HeroPower(db.Model, SerializerMixin):
+# class HeroPower(db.Model, SerializerMixin):
+class HeroPower(db.Model):
     __tablename__ = 'heropowers'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -35,7 +37,7 @@ class HeroPower(db.Model, SerializerMixin):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
 
-    serialize_rules = ("-hero.heropowers", "-power.heropowers",)
+    # serialize_rules = ("-hero.heropowers", "-power.heropowers",)
 
     # powers = db.relationship("Hero", back_populates="powers")
     # heroes = db.relationship("Power", back_populates="heroes")
@@ -51,7 +53,8 @@ class HeroPower(db.Model, SerializerMixin):
         return f'''HeroPower {self.strength}'''
 
 
-class Power(db.Model, SerializerMixin):
+# class Power(db.Model, SerializerMixin):
+class Power(db.Model):
     __tablename__ = 'powers'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -63,7 +66,7 @@ class Power(db.Model, SerializerMixin):
     heropowers = db.relationship("HeroPower", backref="power")
     # heroes = db.relationship("HeroPower", back_populates="heroes")
 
-    serialize_rules = ("-heropowers.power",)
+    # serialize_rules = ("-heropowers.power",)
 
     @validates("description")
     def validate_description(self, key, description):
