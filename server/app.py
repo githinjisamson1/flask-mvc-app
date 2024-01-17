@@ -2,6 +2,7 @@ from flask import Flask, request, make_response, jsonify
 from flask_migrate import Migrate
 from models import db, Hero, HeroPower, Power
 from flask_restful import Api, Resource
+from flask_marshmallow import Marshmallow
 
 app = Flask(__name__)
 
@@ -12,6 +13,67 @@ migrate = Migrate(app, db)
 db.init_app(app)
 
 api = Api(app)
+ma = Marshmallow(app)
+
+
+class PowerSchema():
+    class Meta:
+        model = Power
+
+    # Fields for serialization and deserialization
+    title = ma.auto_field()
+    published_at = ma.auto_field()
+
+    url = ma.Hyperlinks(
+        {
+            "self": ma.URLFor("powerbyid", values=dict(id="<id>")),
+            "collection": ma.URLFor("powers"),
+        }
+    )
+
+
+power_schema = PowerSchema()
+powers_schema = PowerSchema()
+
+
+class HeroSchema():
+    class Meta:
+        model = Hero
+
+    # Fields for serialization and deserialization
+    title = ma.auto_field()
+    published_at = ma.auto_field()
+
+    url = ma.Hyperlinks(
+        {
+            "self": ma.URLFor("herobyid", values=dict(id="<id>")),
+            "collection": ma.URLFor("heroes"),
+        }
+    )
+
+
+hero_schema = HeroSchema()
+heroes_schema = HeroSchema()
+
+
+class HeroPowerSchema():
+    class Meta:
+        model = HeroPower
+
+    # Fields for serialization and deserialization
+    title = ma.auto_field()
+    published_at = ma.auto_field()
+
+    url = ma.Hyperlinks(
+        {
+            "self": ma.URLFor("heropowerbyid", values=dict(id="<id>")),
+            "collection": ma.URLFor("heropowers"),
+        }
+    )
+
+
+heropower_schema = HeroPowerSchema()
+heropowers_schema = HeroPowerSchema()
 
 
 class Index(Resource):
@@ -25,9 +87,11 @@ api.add_resource(Index, "/")
 class Heroes(Resource):
     # !GET heroes
     def get(self):
-        heroes_lc = [hero.to_dict() for hero in Hero.query.all()]
+        # heroes_lc = [hero.to_dict() for hero in Hero.query.all()]
+        heroes = Hero.query.all()
 
-        response = make_response(jsonify(heroes_lc), 200)
+        # response = make_response(jsonify(heroes_lc), 200)
+        response = make_response(heroes_schema.dump(heroes), 200)
 
         response.headers["Content-Type"] = "application/json"
 
@@ -45,9 +109,10 @@ class Heroes(Resource):
         db.session.add(new_hero)
         db.session.commit()
 
-        new_hero_dict = new_hero.to_dict()
+        # new_hero_dict = new_hero.to_dict()
 
-        response = make_response(jsonify(new_hero_dict), 201)
+        # response = make_response(jsonify(new_hero_dict), 201)
+        response = make_response(hero_schema.dump(new_hero), 201)
 
         response.headers["Content-Type"] = "application/json"
 
@@ -79,9 +144,10 @@ class HeroById(Resource):
         if not hero:
             return hero_not_found()
 
-        hero_dict = hero.to_dict()
+        # hero_dict = hero.to_dict()
 
-        response = make_response(jsonify(hero_dict), 200)
+        # response = make_response(jsonify(hero_dict), 200)
+        response = make_response(hero_schema.dump(hero), 200)
 
         response.headers["Content-Type"] = "application/json"
 
@@ -101,9 +167,10 @@ class HeroById(Resource):
 
         db.session.commit()
 
-        hero_dict = hero.to_dict()
+        # hero_dict = hero.to_dict()
 
-        response = make_response(jsonify(hero_dict), 200)
+        # response = make_response(jsonify(hero_dict), 200)
+        response = make_response(hero_schema.dump(hero), 200)
 
         response.headers["Content-Type"] = "application/json"
 
@@ -137,9 +204,11 @@ api.add_resource(HeroById, "/heroes/<int:hero_id>")
 class Powers(Resource):
     # !GET powers
     def get(self):
-        powers_lc = [power.to_dict() for power in Power.query.all()]
+        # powers_lc = [power.to_dict() for power in Power.query.all()]
+        powers = Power.query.all()
 
-        response = make_response(jsonify(powers_lc), 200)
+        # response = make_response(jsonify(powers_lc), 200)
+        response = make_response(powers_schema.dump(powers), 200)
 
         response.headers["Content-Type"] = "application/json"
 
@@ -170,9 +239,10 @@ class PowerById(Resource):
         if not power:
             return power_not_found()
 
-        power_dict = power.to_dict()
+        # power_dict = power.to_dict()
 
-        response = make_response(jsonify(power_dict), 200)
+        # response = make_response(jsonify(power_dict), 200)
+        response = make_response(power_schema.dump(power), 200)
 
         response.headers["Content-Type"] = "application/json"
 
@@ -192,10 +262,11 @@ class PowerById(Resource):
 
         db.session.commit()
 
-        power_dict = power.to_dict()
+        # power_dict = power.to_dict()
 
-        response = make_response(jsonify(power_dict), 200)
-
+        # response = make_response(jsonify(power_dict), 200)
+        response = make_response(power_schema.dump(power), 200)
+        
         response.headers["Content-Type"] = "application/json"
 
         return response
@@ -220,9 +291,10 @@ class HeroPowers(Resource):
         db.session.add(new_heropower)
         db.session.commit()
 
-        new_heropower_dict = new_heropower.to_dict()
+        # new_heropower_dict = new_heropower.to_dict()
 
-        response = make_response(jsonify(new_heropower_dict), 201)
+        # response = make_response(jsonify(new_heropower_dict), 201)
+        response = make_response(heropower_schema.dump(new_heropower), 201)
 
         response.headers["Content-Type"] = "application/json"
 

@@ -3,6 +3,8 @@ from app import app
 from faker import Faker
 import random
 
+# TODO: TEST USING MOCKAROO.COM
+
 # instantite Faker
 fake = Faker()
 
@@ -46,7 +48,7 @@ def seed_database():
         # generate and add 10 Power instances to powers
         power = Power(
             name=fake.unique.name(),
-            description=fake.text(max_nb_chars=50)
+            description=fake.text(max_nb_chars=100)
         )
 
         powers.append(power)
